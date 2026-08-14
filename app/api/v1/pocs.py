@@ -5,6 +5,11 @@ from app.services import poc_service
 
 router = APIRouter()
 
+@router.get("/categories")
+async def list_categories():
+    """Retrieve list of solution categories."""
+    return await poc_service.get_categories_list()
+
 @router.get("/pocs", response_model=List[POCResponse])
 async def list_pocs(
     status: Optional[str] = Query("PUBLISHED"),

@@ -168,3 +168,13 @@ async def get_analytics_summary() -> dict:
         "demoRequests": total_demo_requests,
         "lastUpdated": datetime.utcnow().isoformat()
     }
+
+async def get_categories_list() -> List[dict]:
+    return [
+        {"id": "all", "name": "All Solutions"},
+        {"id": "nlp", "name": "NLP & Text-to-SQL"},
+        {"id": "ecommerce", "name": "Ayurveda & Ecommerce"},
+        {"id": "vision", "name": "Computer Vision"},
+        {"id": "audio", "name": "Voice & Speech AI"},
+        {"id": "agents", "name": "Autonomous Agents"}
+    ]
