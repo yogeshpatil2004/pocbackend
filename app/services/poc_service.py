@@ -3,8 +3,87 @@ import uuid
 from typing import List, Optional
 from datetime import datetime
 
-# In-Memory Repository with persistence fallback (connects seamlessly to Supabase)
-POCS_REPOSITORY: List[dict] = []
+INITIAL_POCS: List[dict] = [
+    {
+        "id": "1092ccb2-7f06-4ab2-b0c7-9955fad62b5a",
+        "title": "Text2SQL Enterprise Engine",
+        "slug": "text-to-sql",
+        "short_description": "Translate natural language prompts into optimized, production-grade SQL queries with automated schema parsing, RAG query optimization, and execution analytics.",
+        "full_description": "Text2SQL Enterprise Engine is an advanced natural language interface for databases. Powered by state-of-the-art Large Language Models (LLMs) and retrieval-augmented generation (RAG), it allows developers, data analysts, and non-technical business users to query complex SQL databases using plain conversational language.",
+        "problem_statement": "Writing complex SQL queries across dozens of relational database schemas requires specialized data engineering knowledge and delays time-to-insight for non-technical stakeholders.",
+        "solution_statement": "Text2SQL converts natural language questions directly into syntactically valid, schema-aware SQL queries with sub-second execution speeds, automated error correction, and execution safety checks.",
+        "business_benefits": "Accelerates business intelligence reporting by 10x, reduces database engineer query assistance requests by 80%, and enables conversational self-service analytics for enterprise teams.",
+        "target_users": "Data Analysts, Product Managers, Enterprise Business Intelligence Teams",
+        "expected_outcome": "Sub-second SQL generation with 99.4% syntax accuracy across PostgreSQL and Supabase schemas.",
+        "category_id": "nlp",
+        "industry_id": "enterprise",
+        "status": "PUBLISHED",
+        "featured": True,
+        "featured_order": 1,
+        "cover_image": "https://ik.imagekit.io/smhak538c/vibodh_poc/text2sql_cover_N1uI4gQk9.png",
+        "banner_image": "https://ik.imagekit.io/smhak538c/vibodh_poc/text2sql_banner_WfS5_G6L3.png",
+        "live_demo_url": "https://txt2sql.vibodh.workers.dev/",
+        "github_url": None,
+        "tags": ["Text-to-SQL", "LLM", "PostgreSQL", "Supabase", "FastAPI", "Cloudflare Workers"],
+        "views": 142,
+        "likes": 28,
+        "demo_requests": 14,
+        "features": [
+            {"feature_name": "Automated Schema Extraction", "description": "Connects to PostgreSQL/Supabase databases and automatically parses tables, foreign keys, and indexes."},
+            {"feature_name": "RAG Query Optimization", "description": "Retrieves relevant table contexts using semantic search before constructing prompt payloads."},
+            {"feature_name": "SQL Safety & Sanity Checker", "description": "Ensures generated queries are read-only SELECT statements, preventing destructive DDL/DML execution."}
+        ],
+        "workflow_steps": [
+            {"title": "Natural Language Input", "description": "User enters a question in plain English (e.g., 'Show total sales by product category for Q3')."},
+            {"title": "Schema Context Retrieval", "description": "RAG engine fetches table DDLs and column definitions matching the query intent."},
+            {"title": "LLM SQL Generation", "description": "Language model generates optimized SQL query with syntax validation."},
+            {"title": "Database Execution & Results", "description": "Query executes against live database and displays visual data tables."}
+        ],
+        "gallery_images": [],
+        "created_at": "2026-08-14T10:00:00.000000",
+        "updated_at": "2026-08-14T10:00:00.000000"
+    },
+    {
+        "id": "1092ccb2-7f06-4ab2-b0c7-9955fad62b5c",
+        "title": "Naidile Naturals - Ayurvedic Commerce Platform",
+        "slug": "naidile-naturals",
+        "short_description": "Whole-plant, toxin-free Ayurvedic skin and hair care ecommerce platform powered by automated product recommendation engines and custom formulation trial packs.",
+        "full_description": "Naidile Naturals is a next-generation Ayurvedic wellness and personal care ecommerce platform. Built to deliver whole-plant, toxin-free skin and hair care formulations crafted from pure botanicals and herbal extracts. The platform features an intelligent recommendation workflow for custom skin-type analysis, interactive trial combo builder, real-time order processing, and holistic product care subscriptions.",
+        "problem_statement": "Traditional skincare products often contain synthetic toxins, while consumers struggle to identify genuine, whole-plant Ayurvedic treatments suited for their specific skin type, pigmentation, or pimple care needs.",
+        "solution_statement": "Naidile Naturals provides a digital-first Ayurvedic commerce experience with personalized product recommendations, ingredient transparency, automated combo trial packs, and seamless omnichannel delivery.",
+        "business_benefits": "Increases customer conversion by 45% with tailored herbal trial packs, builds long-term brand trust with 100% toxin-free guarantee, and streamlines catalog management across 50+ botanical formulations.",
+        "target_users": "Consumers, Dermatology Enthusiasts, Wellness Shoppers",
+        "expected_outcome": "Seamless Ayurvedic skincare discovery with 99.8% customer satisfaction and instant cart checkout.",
+        "category_id": "ecommerce",
+        "industry_id": "wellness",
+        "status": "PUBLISHED",
+        "featured": True,
+        "featured_order": 2,
+        "cover_image": "https://ik.imagekit.io/smhak538c/vibodh_poc/naidile_ayurveda_cover_hEdhlSlw6.png",
+        "banner_image": "https://ik.imagekit.io/smhak538c/vibodh_poc/naidile_ayurveda_cover_hEdhlSlw6.png",
+        "live_demo_url": "https://naidile.in",
+        "github_url": None,
+        "tags": ["Ayurveda", "Ecommerce", "Skin Care", "SvelteKit", "Botanical Formulations", "Toxin-Free"],
+        "views": 98,
+        "likes": 19,
+        "demo_requests": 8,
+        "features": [
+            {"feature_name": "Intelligent Product Personalization", "description": "AI-guided recommendation engine matching skin concerns with pure botanical formulations."},
+            {"feature_name": "Toxin-Free Botanical Catalog", "description": "Multi-category herbal skincare showcase featuring Kumkumadi Creams, De-Pigmentation formulations, and natural cleansers."},
+            {"feature_name": "Custom Combo Trial Builder", "description": "Interactive trial pack configurator allowing customers to mix & match 4-in-1 trial sizes."}
+        ],
+        "workflow_steps": [
+            {"title": "Skin Assessment & Discovery", "description": "Customer takes a quick 3-step skin questionnaire or explores targeted remedies."},
+            {"title": "Formulation Matching", "description": "Engine matches symptoms (pigmentation, acne, hydration) with whole-plant herbal remedies."},
+            {"title": "Custom Trial Pack Assembly", "description": "Customer selects or receives an auto-generated trial combo pack."}
+        ],
+        "gallery_images": [],
+        "created_at": "2026-08-14T10:25:00.000000",
+        "updated_at": "2026-08-14T10:25:00.000000"
+    }
+]
+
+POCS_REPOSITORY: List[dict] = list(INITIAL_POCS)
 SETTINGS_REPOSITORY: dict = {
     "company_name": "Vibodh AI Labs",
     "tagline": "Think AI. Build Beyond Limits.",
