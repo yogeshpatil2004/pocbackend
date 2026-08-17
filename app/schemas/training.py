@@ -40,6 +40,9 @@ class FolderContentResponse(BaseModel):
     folders: List[TrainingFolderResponse] = []
     resources: List[TrainingResourceSchema] = []
 
+    class Config:
+        from_attributes = True
+
 class TrainingMaterialBase(BaseModel):
     title: str
     slug: Optional[str] = None
