@@ -126,7 +126,9 @@ async def update_training(db: AsyncSession, training_id: str, data: TrainingMate
     if "resources" in update_data:
         await db.execute(TrainingResource.__table__.delete().where(TrainingResource.training_id == training.id))
         for res in update_data["resources"]:
-            db.add(TrainingResource(training_id=training.id, **res))
+            res_dict = res if isinstance(res, dict) else res.model_dump()
+            res_dict["training_id"] = training.id
+            db.add(TrainingResource(**res_dict))
     
     await db.commit()
     return await get_training_by_id_or_slug(db, str(training.id))
