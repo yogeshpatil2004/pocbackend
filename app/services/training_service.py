@@ -45,7 +45,9 @@ async def create_training(db: AsyncSession, data: TrainingMaterialCreate) -> Tra
     await db.flush()
 
     for res in data.resources:
-        r = TrainingResource(training_id=new_training.id, **res.model_dump())
+        res_dict = res.model_dump()
+        res_dict["training_id"] = new_training.id
+        r = TrainingResource(**res_dict)
         db.add(r)
 
     await db.commit()
