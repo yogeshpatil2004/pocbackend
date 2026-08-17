@@ -31,6 +31,28 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+@app.on_event("startup")
+async def on_startup():
+    from sqlalchemy import text
+    from app.db.session import engine
+    from app.db.session import Base
+    from app.models.training import TrainingFolder, TrainingResource, TrainingMaterial, TrainingDownload  # noqa
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with engine.connect() as conn:
+        for sql in [
+            "ALTER TABLE training_resources ADD COLUMN IF NOT EXISTS folder_name VARCHAR DEFAULT 'General Resources';",
+            "ALTER TABLE training_resources ADD COLUMN IF NOT EXISTS folder_id UUID;",
+            "ALTER TABLE training_resources ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();"
+        ]:
+            try:
+                await conn.execute(text(sql))
+                await conn.commit()
+            except Exception as e:
+                print("Auto schema sync notice:", e)
+
 @app.get("/")
 async def root():
     return {
