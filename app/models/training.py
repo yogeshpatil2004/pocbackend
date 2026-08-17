@@ -11,6 +11,7 @@ class TrainingResource(Base):
     resource_name = Column(String, nullable=False)
     resource_type = Column(String, nullable=False)
     resource_url = Column(Text, nullable=False)
+    folder_name = Column(String, nullable=True, default="General Resources")
     display_order = Column(Integer, default=0)
 
 class TrainingMaterial(Base):

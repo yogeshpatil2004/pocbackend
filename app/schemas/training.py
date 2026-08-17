@@ -8,6 +8,7 @@ class TrainingResourceSchema(BaseModel):
     resource_name: str
     resource_type: str
     resource_url: str
+    folder_name: Optional[str] = "General Resources"
     display_order: Optional[int] = 0
 
     class Config:
