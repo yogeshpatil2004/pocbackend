@@ -170,3 +170,114 @@ async def get_user_downloads(db: AsyncSession, user_id: str) -> List[TrainingDow
     result = await db.execute(query)
     return result.scalars().all()
 
+async def get_folder_contents(db: AsyncSession, folder_id: Optional[str] = None) -> dict:
+    breadcrumbs = [{"id": None, "name": "Training Materials"}]
+    current_folder = None
+    
+    if folder_id:
+        try:
+            f_uuid = uuid.UUID(str(folder_id))
+            curr_res = await db.execute(select(TrainingFolder).filter(TrainingFolder.id == f_uuid))
+            current_folder = curr_res.scalars().first()
+        except ValueError:
+            current_folder = None
+            
+    if current_folder:
+        # Build breadcrumbs chain recursively
+        chain = []
+        curr = current_folder
+        while curr:
+            chain.append({"id": str(curr.id), "name": curr.name})
+            if curr.parent_id:
+                p_res = await db.execute(select(TrainingFolder).filter(TrainingFolder.id == curr.parent_id))
+                curr = p_res.scalars().first()
+            else:
+                curr = None
+        chain.reverse()
+        breadcrumbs.extend(chain)
+
+        # Get subfolders
+        sub_res = await db.execute(
+            select(TrainingFolder)
+            .filter(TrainingFolder.parent_id == current_folder.id)
+            .order_by(TrainingFolder.name)
+        )
+        folders = sub_res.scalars().all()
+
+        # Get resources inside current folder
+        rec_res = await db.execute(
+            select(TrainingResource)
+            .filter(TrainingResource.folder_id == current_folder.id)
+            .order_by(TrainingResource.resource_name)
+        )
+        resources = rec_res.scalars().all()
+    else:
+        # Root level
+        sub_res = await db.execute(
+            select(TrainingFolder)
+            .filter(TrainingFolder.parent_id.is_(None))
+            .order_by(TrainingFolder.name)
+        )
+        folders = sub_res.scalars().all()
+
+        rec_res = await db.execute(
+            select(TrainingResource)
+            .filter(TrainingResource.folder_id.is_(None))
+            .order_by(TrainingResource.resource_name)
+        )
+        resources = rec_res.scalars().all()
+
+    return {
+        "current_folder": current_folder,
+        "breadcrumbs": breadcrumbs,
+        "folders": folders,
+        "resources": resources
+    }
+
+async def create_folder(db: AsyncSession, name: str, parent_id: Optional[str] = None) -> TrainingFolder:
+    p_uuid = uuid.UUID(str(parent_id)) if parent_id and parent_id != 'null' else None
+    new_folder = TrainingFolder(name=name.strip(), parent_id=p_uuid)
+    db.add(new_folder)
+    await db.commit()
+    await db.refresh(new_folder)
+    return new_folder
+
+async def delete_folder(db: AsyncSession, folder_id: str) -> bool:
+    try:
+        f_uuid = uuid.UUID(str(folder_id))
+        folder = await db.get(TrainingFolder, f_uuid)
+        if not folder:
+            return False
+        await db.delete(folder)
+        await db.commit()
+        return True
+    except Exception:
+        return False
+
+async def create_standalone_resource(db: AsyncSession, data: dict) -> TrainingResource:
+    f_uuid = uuid.UUID(str(data["folder_id"])) if data.get("folder_id") and data.get("folder_id") != 'null' else None
+    t_uuid = uuid.UUID(str(data["training_id"])) if data.get("training_id") and data.get("training_id") != 'null' else None
+    new_res = TrainingResource(
+        resource_name=data["resource_name"].strip(),
+        resource_type=data["resource_type"],
+        resource_url=data["resource_url"].strip(),
+        folder_id=f_uuid,
+        training_id=t_uuid
+    )
+    db.add(new_res)
+    await db.commit()
+    await db.refresh(new_res)
+    return new_res
+
+async def delete_standalone_resource(db: AsyncSession, resource_id: str) -> bool:
+    try:
+        r_uuid = uuid.UUID(str(resource_id))
+        res = await db.get(TrainingResource, r_uuid)
+        if not res:
+            return False
+        await db.delete(res)
+        await db.commit()
+        return True
+    except Exception:
+        return False
+

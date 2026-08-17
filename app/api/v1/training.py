@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
-from app.schemas.training import TrainingMaterialCreate, TrainingMaterialUpdate, TrainingMaterialResponse, TrainingDownloadCreate, TrainingDownloadResponse
+from app.schemas.training import (
+    TrainingMaterialCreate, TrainingMaterialUpdate, TrainingMaterialResponse, 
+    TrainingDownloadCreate, TrainingDownloadResponse, TrainingFolderCreate, 
+    TrainingFolderResponse, FolderContentResponse, TrainingResourceSchema
+)
 from app.services import training_service
 from app.db.session import get_db
 from app.core.security import verify_clerk_token
@@ -73,3 +77,47 @@ async def get_downloads(
         raise HTTPException(status_code=401, detail="User ID not found in token")
         
     return await training_service.get_user_downloads(db, user_id)
+
+@router.get("/training/explorer/contents", response_model=FolderContentResponse)
+async def get_explorer_contents(
+    folder_id: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db)
+):
+    return await training_service.get_folder_contents(db, folder_id)
+
+@router.post("/training/folders", response_model=TrainingFolderResponse, status_code=status.HTTP_201_CREATED)
+async def create_folder(
+    payload: TrainingFolderCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    return await training_service.create_folder(db, payload.name, str(payload.parent_id) if payload.parent_id else None)
+
+@router.delete("/training/folders/{folder_id}")
+async def delete_folder(
+    folder_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    success = await training_service.delete_folder(db, folder_id)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Folder ID {folder_id} not found")
+    return {"message": "Folder deleted successfully"}
+
+@router.post("/training/resources", response_model=TrainingResourceSchema, status_code=status.HTTP_201_CREATED)
+async def create_standalone_resource(
+    payload: TrainingResourceSchema,
+    db: AsyncSession = Depends(get_db)
+):
+    data = payload.model_dump()
+    data["folder_id"] = str(payload.folder_id) if payload.folder_id else None
+    data["training_id"] = str(payload.training_id) if payload.training_id else None
+    return await training_service.create_standalone_resource(db, data)
+
+@router.delete("/training/resources/{resource_id}")
+async def delete_standalone_resource(
+    resource_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    success = await training_service.delete_standalone_resource(db, resource_id)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Resource ID {resource_id} not found")
+    return {"message": "Resource deleted successfully"}

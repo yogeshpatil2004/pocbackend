@@ -12,8 +12,9 @@ async def run_migrations():
     async with engine.begin() as conn:
         print("Creating tables...")
         await conn.run_sync(Base.metadata.create_all)
-        print("Adding folder_name column to training_resources if missing...")
+        print("Adding folder_name & folder_id columns to training_resources if missing...")
         await conn.execute(text("ALTER TABLE training_resources ADD COLUMN IF NOT EXISTS folder_name VARCHAR DEFAULT 'General Resources';"))
+        await conn.execute(text("ALTER TABLE training_resources ADD COLUMN IF NOT EXISTS folder_id UUID REFERENCES training_folders(id) ON DELETE CASCADE;"))
     print("Done!")
 
 if __name__ == "__main__":
