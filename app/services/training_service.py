@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy import or_, desc
 from app.models.training import (
-    TrainingMaterial, TrainingResource, TrainingDownload
+    TrainingMaterial, TrainingResource, TrainingDownload, TrainingFolder
 )
 from app.schemas.training import TrainingMaterialCreate, TrainingMaterialUpdate
 import re
